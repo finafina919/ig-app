@@ -180,11 +180,11 @@
   .page-scale{
     width:100%;border-radius:6px;overflow:hidden;
     box-shadow:0 2px 8px rgba(0,0,0,.08);background:#fff;
-    position:relative;height:0;
+    position:relative;
   }
   .page-scale .page-inner{
-    position:absolute;top:0;left:0;
     transform-origin:top left;transform:scale(var(--scale));
+    display:block;
   }
 
   /* IG grid preview mode */
@@ -1270,11 +1270,11 @@ function renderPages(pages){
       if(!w) return;
       const s = w/1080;
       const inner = scaleEl.querySelector('.page-inner');
+      // 用 zoom 取代 transform:scale，zoom 會正確影響父層高度
+      inner.style.zoom = s;
       inner.style.setProperty('--scale', s);
       inner.style.width = '1080px';
       inner.style.height = pageH + 'px';
-      // padding-top 撐開容器高度（transform:scale 不影響父層 flow）
-      scaleEl.style.paddingTop = Math.round(pageH * s) + 'px';
     };
     setScale();
     requestAnimationFrame(setScale);
@@ -1330,6 +1330,7 @@ function renderGrid(pages){
       const pageH = state.fmt==='square'?1080 : state.fmt==='story'?1920 : 1350;
       const s = w/1080;
       const inner = cell.firstChild;
+      inner.style.zoom = s;
       inner.style.setProperty('--scale', s);
       inner.style.width = '1080px';
       inner.style.height = pageH + 'px';
