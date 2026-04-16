@@ -179,9 +179,11 @@
   .page-dl:hover{background:#eee;color:#333}
   .page-scale{
     width:100%;border-radius:6px;overflow:hidden;
-    box-shadow:0 2px 8px rgba(0,0,0,.08);background:#fff;position:relative;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);background:#fff;
+    position:relative;height:0;
   }
   .page-scale .page-inner{
+    position:absolute;top:0;left:0;
     transform-origin:top left;transform:scale(var(--scale));
   }
 
@@ -1271,7 +1273,8 @@ function renderPages(pages){
       inner.style.setProperty('--scale', s);
       inner.style.width = '1080px';
       inner.style.height = pageH + 'px';
-      scaleEl.style.height = Math.round(pageH * s) + 'px';
+      // padding-top 撐開容器高度（transform:scale 不影響父層 flow）
+      scaleEl.style.paddingTop = Math.round(pageH * s) + 'px';
     };
     setScale();
     requestAnimationFrame(setScale);
