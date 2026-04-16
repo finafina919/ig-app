@@ -669,15 +669,6 @@
     .tmpl-grid{grid-template-columns:repeat(3,1fr)}
   }
 </style>
-
-  <!-- ===== PWA ===== -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="法律IG模版">
-  <meta name="theme-color" content="#2A3340">
-  <link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
 
@@ -1272,18 +1263,19 @@ function renderPages(pages){
     host.appendChild(buildPage(pg,i+1,pages.length));
     const scaleEl = wrap.querySelector('.page-scale');
     const setScale = ()=>{
-      const w = scaleEl.clientWidth;
-      const h = scaleEl.clientHeight;
+      const w = scaleEl.getBoundingClientRect().width || scaleEl.offsetWidth;
       const pageH = state.fmt==='square'?1080 : state.fmt==='story'?1920 : 1350;
-      const s = Math.min(w/1080, h/pageH);
+      if(!w) return;
+      const s = w/1080;
       const inner = scaleEl.querySelector('.page-inner');
       inner.style.setProperty('--scale', s);
       inner.style.width = '1080px';
       inner.style.height = pageH + 'px';
+      scaleEl.style.height = Math.round(pageH * s) + 'px';
     };
     setScale();
     requestAnimationFrame(setScale);
-    window.addEventListener('resize',setScale);
+    window.addEventListener('resize', setScale);
   });
 
   grid.querySelectorAll('.page-dl').forEach(b=>{
@@ -1330,10 +1322,9 @@ function renderGrid(pages){
 
     // Scale to cell
     const setScale = ()=>{
-      const w = cell.clientWidth;
-      const h = cell.clientHeight;
+      const w = cell.getBoundingClientRect().width || cell.offsetWidth;
+      if(!w) return;
       const pageH = state.fmt==='square'?1080 : state.fmt==='story'?1920 : 1350;
-      // For IG grid, content is cropped square, so scale by width then crop
       const s = w/1080;
       const inner = cell.firstChild;
       inner.style.setProperty('--scale', s);
@@ -1342,7 +1333,7 @@ function renderGrid(pages){
     };
     setScale();
     requestAnimationFrame(setScale);
-    window.addEventListener('resize',setScale);
+    window.addEventListener('resize', setScale);
   }
 }
 
@@ -1645,7 +1636,8 @@ function initMobileTabs(){
       document.body.classList.add('show-'+b.dataset.show);
       // Re-render to recalc scales after layout change
       if(b.dataset.show==='preview'){
-        setTimeout(render,50);
+        setTimeout(render, 100);
+        setTimeout(render, 350);
       }
       // Update toggle button text
       const toggleBtn = document.getElementById('btnTogglePreview');
@@ -1686,16 +1678,6 @@ initViewTabs();
 initMobileTabs();
 bindInputs();
 render();
-</script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(r => console.log('SW registered'))
-      .catch(e => console.log('SW error', e));
-  });
-}
 </script>
 </body>
 </html>
